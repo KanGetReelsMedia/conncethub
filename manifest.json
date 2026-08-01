@@ -1,6 +1,6 @@
 {
   "name": "Connect Hub",
-  "short_name": "CH",
+  "short_name": "ConnectHub",
   "description": "Your space to connect - Modern MySpace for your inner circle",
   "start_url": "./",
   "scope": "./",
