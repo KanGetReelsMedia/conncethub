@@ -1,4 +1,4 @@
-const CACHE_NAME = 'connecthub-v7';
+const CACHE_NAME = 'connecthub-v9';
 const OFFLINE_URL = './offline.html';
 
 const ASSETS = [
@@ -10,7 +10,8 @@ const ASSETS = [
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(async (cache) => {
+    (async () => {
+      const cache = await caches.open(CACHE_NAME);
       // Add one by one so 1 failure doesn't break all
       for (const asset of ASSETS) {
         try {
@@ -19,46 +20,65 @@ self.addEventListener('install', (event) => {
           console.warn('[ConnectHub SW] Failed to cache', asset, err);
         }
       }
-    })
+    })()
   );
   self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((keys) => Promise.all(
-      keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))
-    ))
+    (async () => {
+      const keys = await caches.keys();
+      await Promise.all(
+        keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))
+      );
+      await self.clients.claim();
+    })()
   );
-  self.clients.claim();
 });
 
 self.addEventListener('fetch', (event) => {
   const req = event.request;
 
-  // Skip Firebase / API calls - never cache those
-  if (req.url.includes('firestore') || req.url.includes('firebase') || req.url.includes('googleapis')) {
+  // Never cache Firebase / Google APIs - breaks login
+  if (
+    req.url.includes('firestore') ||
+    req.url.includes('firebase') ||
+    req.url.includes('googleapis') ||
+    req.url.includes('gstatic') ||
+    req.url.includes('identitytoolkit')
+  ) {
     return;
   }
 
+  // Handle navigation - show offline.html when offline
   if (req.mode === 'navigate') {
     event.respondWith(
       fetch(req).catch(() => caches.match(OFFLINE_URL))
     );
-  } else {
-    event.respondWith(
-      caches.match(req).then((cached) => {
-        return cached || fetch(req).then((res) => {
-          // Cache images/videos from your hub for offline
-          if (req.destination === 'image' || req.destination === 'video') {
+    return;
+  }
+
+  // For everything else: cache-first, then network
+  event.respondWith(
+    caches.match(req).then((cached) => {
+      if (cached) return cached;
+
+      return fetch(req)
+        .then((res) => {
+          // Only cache images/videos from your hubs for offline
+          if (res.ok && (req.destination === 'image' || req.destination === 'video' || req.url.includes('foundbymk.shop'))) {
             const clone = res.clone();
-            caches.open(CACHE_NAME).then(c => c.put(req, clone));
+            caches.open(CACHE_NAME).then((c) => c.put(req, clone));
           }
           return res;
-        }).catch(() => {
-          // Offline fallback
+        })
+        .catch(() => {
+          // Offline and not in cache - return nothing
+          if (req.destination === 'image') {
+            return caches.match('https://foundbymk.shop/wp-content/uploads/2026/08/Screenshot-2026-08-01-3.07.40-PM.png');
+          }
         });
-      })
-    );
-  }
+    })
+  );
 });
