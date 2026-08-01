@@ -2,6 +2,12 @@
   "name": "Connect Hub",
   "short_name": "CH",
   "description": "Your space to connect - Modern MySpace for your inner circle",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#FFFFFF",
+  "theme_color": "#2563EB",
+  "orientation": "portrait",
   "icons": [
     {
       "src": "https://foundbymk.shop/wp-content/uploads/2026/08/Screenshot-2026-08-01-3.07.40-PM.png",
@@ -15,11 +21,5 @@
       "type": "image/png",
       "purpose": "any maskable"
     }
-  ],
-  "start_url": "./",
-  "scope": "./",
-  "background_color": "#FFFFFF",
-  "theme_color": "#2563EB",
-  "display": "standalone",
-  "orientation": "portrait"
+  ]
 }
