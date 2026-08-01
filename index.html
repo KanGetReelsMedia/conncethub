@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Connect Hub - Your space to connect</title>
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" type="image/png" href="./icon-192.png">
+<link rel="apple-touch-icon" href="./icon-512.png">
+<meta name="theme-color" content="#2563EB">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-[#F1F5F9] flex items-center justify-center p-4">
+  <div class="w-full max-w- bg-white rounded- shadow border border-[#E5E7EB] p-10 text-center">
+    <img src="https://foundbymk.shop/wp-content/uploads/2026/08/ConnectHubLogo_cleanup.png" class="h-10 mx-auto mb-6">
+    <h1 class="text- font-[800] leading-[0.95]">Your space<br>to connect</h1>
+    <p class="text-sm text-[#64748b] mt-2">PWA manifest now linked statically — PWABuilder will see it.</p>
+    <a href="./" class="mt-6 block h-12 rounded-full bg-[#2563EB] text-white flex items-center justify-center font-semibold">Enter Hub</a>
+  </div>
+  <script>
+    if('serviceWorker' in navigator){
+      window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js'))
+    }
+  </script>
+</body>
+</html>
