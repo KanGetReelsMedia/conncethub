@@ -10,13 +10,13 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "https://foundbymk.shop/wp-content/uploads/2026/08/Screenshot-2026-08-01-3.07.40-PM.png",
+      "src": "./icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "https://foundbymk.shop/wp-content/uploads/2026/08/Screenshot-2026-08-01-3.07.40-PM.png",
+      "src": "./icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
