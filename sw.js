@@ -1,18 +1,19 @@
-const CACHE_NAME = 'connecthub-v9';
+const CACHE_NAME = 'connecthub-v10';
 const OFFLINE_URL = './offline.html';
 
 const ASSETS = [
   './',
   './index.html',
   './manifest.json',
-  './offline.html'
+  './offline.html',
+  './icon-192.png',
+  './icon-512.png'
 ];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
     (async () => {
       const cache = await caches.open(CACHE_NAME);
-      // Add one by one so 1 failure doesn't break all
       for (const asset of ASSETS) {
         try {
           await cache.add(asset);
@@ -40,7 +41,7 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const req = event.request;
 
-  // Never cache Firebase / Google APIs - breaks login
+  // Never cache Firebase
   if (
     req.url.includes('firestore') ||
     req.url.includes('firebase') ||
@@ -51,7 +52,6 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Handle navigation - show offline.html when offline
   if (req.mode === 'navigate') {
     event.respondWith(
       fetch(req).catch(() => caches.match(OFFLINE_URL))
@@ -59,26 +59,16 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // For everything else: cache-first, then network
   event.respondWith(
     caches.match(req).then((cached) => {
       if (cached) return cached;
-
-      return fetch(req)
-        .then((res) => {
-          // Only cache images/videos from your hubs for offline
-          if (res.ok && (req.destination === 'image' || req.destination === 'video' || req.url.includes('foundbymk.shop'))) {
-            const clone = res.clone();
-            caches.open(CACHE_NAME).then((c) => c.put(req, clone));
-          }
-          return res;
-        })
-        .catch(() => {
-          // Offline and not in cache - return nothing
-          if (req.destination === 'image') {
-            return caches.match('https://foundbymk.shop/wp-content/uploads/2026/08/Screenshot-2026-08-01-3.07.40-PM.png');
-          }
-        });
+      return fetch(req).then((res) => {
+        if (res.ok && (req.destination === 'image' || req.destination === 'style' || req.destination === 'script')) {
+          const clone = res.clone();
+          caches.open(CACHE_NAME).then((c) => c.put(req, clone));
+        }
+        return res;
+      });
     })
   );
 });
